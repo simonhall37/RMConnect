@@ -28,8 +28,7 @@ public class TimeEntryService {
 	public List<TimeEntry> getEntriesByDate(String startDateString, String endDateString) {
 
 		List<TimeEntry> out = new ArrayList<>();
-
-		@SuppressWarnings("unused")
+		
 		LocalDate startDate = null, endDate = null;
 
 		try {
@@ -45,7 +44,21 @@ public class TimeEntryService {
 		params.add("spent_on=<=" + endDateString);
 		params.add("limit=" + limit);
 		TimeEntryWrapper wrapper = RMService.getResponse(format, "time_entries", params, TimeEntryWrapper.class);
-		return checkDates(wrapper, startDate, endDate);
+		
+		int checkVar = this.limit;
+		int offset = 0;
+		while (checkVar == this.limit && offset < 1000){
+			final List<TimeEntry> part = checkDates(wrapper, startDate, endDate);
+			checkVar = part.size();
+			out.addAll(part);
+			log.info("Read " + part.size() + " elements and adding to store. " + out.size() + " entries in total");
+			final List<String> tempParams = params.subList(0, 3);
+			offset=offset+100;
+			tempParams.add("offset=" + offset);
+			wrapper = RMService.getResponse(format, "time_entries", tempParams, TimeEntryWrapper.class);
+		}
+		
+		return out;
 	}
 
 	private List<TimeEntry> checkDates(TimeEntryWrapper wrapper, LocalDate startDate, LocalDate endDate)
@@ -61,9 +74,7 @@ public class TimeEntryService {
 				) {
 					out.add(entry);
 				}
-				else {
-					log.warn(entry.getSpent_on() + " is outside the date range");
-				}
+
 			} catch (DateTimeParseException e) {
 				log.warn("Could not parse the date: " + entry.getSpent_on());
 			}
