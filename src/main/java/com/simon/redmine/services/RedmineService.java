@@ -18,7 +18,9 @@ public class RedmineService {
 	private String BASE_URL;
 	@Value("${redmine.apikey.name}")
 	private String API_KEY_NAME;
-	@Value("${redmine.apikey.value}")
+	@Value("${redmine.apikey.environment.var}")
+	private String API_ENV_VAR_NAME;
+	
 	private String API_KEY_VALUE;
 
 	private RestTemplate restTemplate;
@@ -27,18 +29,22 @@ public class RedmineService {
 	private RestTemplateBuilder builder;
 
 	@SuppressWarnings("serial")
-	public <T extends Object> T getResponse(String format, String type, List<String> params, Class<T> objectType) {
+	public <T extends Object> T getResponse(String format, String type, List<String> params, Class<T> objectType) throws NullPointerException {
 
 		if (this.restTemplate == null)
 			this.restTemplate = builder.build();
 
+		if (this.API_KEY_VALUE == null)
+			this.API_KEY_VALUE = System.getenv(API_ENV_VAR_NAME);
+		if (this.API_KEY_VALUE == null) 
+			throw new NullPointerException("API_KEY_VALUE is not set. Expecting an env var called " + this.API_ENV_VAR_NAME);
+		
 		StringBuilder url = new StringBuilder(BASE_URL + "/" + type + "." + format + "?");
 		for (String entry : params) {
 			url.append(entry + "&");
 		}
 		
 		String urlString = url.toString();
-		System.out.println(urlString);
 
 		HttpEntity<T> response = restTemplate.exchange(urlString, HttpMethod.GET,
 				new HttpEntity<T>(new HttpHeaders() {
