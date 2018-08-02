@@ -53,18 +53,26 @@ public class ReportService {
 	}
 	
 	public String reduce(ReduceOps[] reductions) {
-		StringBuilder sb = new StringBuilder(this.header);
-		
+		StringBuilder sb = new StringBuilder(this.header + "\n");
+		int index = 0;
 		for (Entry<String,List<String[]>> e : this.results.entrySet()) {
 			sb.append(e.getKey() + this.DELIM);
-			if (reductions.length != e.getValue().size())
-				throw new IllegalArgumentException("reduction ops size doesn't match values size - (" + reductions.length + " - " + e.getValue().toString());
 			for (ReduceOps r : reductions) {
 				if (r.equals(ReduceOps.COUNT)) {
 					sb.append(e.getValue().size() + this.DELIM);
+				} else if (r.equals(ReduceOps.SUM)) {
+					Double total = 0d;
+					for (String[] sa : e.getValue()) {
+						try{
+							total=total + Double.parseDouble(sa[index]);
+						} catch (NumberFormatException ex) {
+							ex.getMessage();
+						}
+					}
 				}
 			}
-			sb.append("\n");
+			sb.deleteCharAt(sb.length()-1).append("\n");
+			index++;
 		}
 		
 		return sb.toString();

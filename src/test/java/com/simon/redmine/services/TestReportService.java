@@ -146,5 +146,71 @@ public class TestReportService {
 		assertThat(service.getResults().get("key").get(1)).isEqualTo(new  String[] {"value2"});
 		
 	}
+	
+	@Test
+	public void testReduce_shouldCountRecords() {
+		
+		ReportService service = new ReportService();
+		Object[] keyArray1 = new String[] {"aaa","bbb"};
+		Object[] valuesArray1 = new String[] {"ccc","ddd"};
+		Object[] valuesArray2 = new String[] {"eee","fff"};
+		Object[] keyArray2 = new String[] {"yyy","zzz"};
+		Object[] valuesArray3 = new String[] {"ggg","hhh"};
+		
+		ReduceOps[] ro = new ReduceOps[] {ReduceOps.COUNT,ReduceOps.COUNT};
+		
+		String expectedLine1 = "key1,key2,count1,count2";
+		String expectedLine2 = "\"aaa\",\"bbb\",2,2";
+		String expectedLine3 = "\"yyy\",\"zzz\",1,1";
+		
+		assertThat(service.getResults().size()).isEqualTo(0);
+		
+		service.setHeader("key1,key2,count1,count2");
+		service.add(keyArray1, valuesArray1);
+		service.add(keyArray1, valuesArray2);
+		service.add(keyArray2, valuesArray3);
+		
+		assertThat(service.getResults().size()).isEqualTo(2);
+		String[] result = service.reduce(ro).split("\n");
+		
+		assertThat(result.length).isEqualTo(3);
+		assertThat(result[0]).isEqualTo(expectedLine1);
+		assertThat(result[1]).isEqualTo(expectedLine2);
+		assertThat(result[2]).isEqualTo(expectedLine3);
+		
+	}
+	
+	@Test
+	public void testReduce_shouldSumRecords() {
+		
+		ReportService service = new ReportService();
+		Object[] keyArray1 = new String[] {"aaa","bbb"};
+		Object[] valuesArray1 = new String[] {"1","1"};
+		Object[] valuesArray2 = new String[] {"2","3"};
+		Object[] keyArray2 = new String[] {"yyy","zzz"};
+		Object[] valuesArray3 = new String[] {"55","11"};
+		
+		ReduceOps[] ro = new ReduceOps[] {ReduceOps.SUM,ReduceOps.SUM};
+		
+		String expectedLine1 = "key1,key2,count1,count2";
+		String expectedLine2 = "\"aaa\",\"bbb\",3,4";
+		String expectedLine3 = "\"yyy\",\"zzz\",55,11";
+		
+		assertThat(service.getResults().size()).isEqualTo(0);
+		
+		service.setHeader("key1,key2,count1,count2");
+		service.add(keyArray1, valuesArray1);
+		service.add(keyArray1, valuesArray2);
+		service.add(keyArray2, valuesArray3);
+		
+		assertThat(service.getResults().size()).isEqualTo(2);
+		String[] result = service.reduce(ro).split("\n");
+		
+		assertThat(result.length).isEqualTo(3);
+		assertThat(result[0]).isEqualTo(expectedLine1);
+		assertThat(result[1]).isEqualTo(expectedLine2);
+		assertThat(result[2]).isEqualTo(expectedLine3);
+		
+	}
 
 }

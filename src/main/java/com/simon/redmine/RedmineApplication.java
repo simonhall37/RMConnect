@@ -36,6 +36,7 @@ public class RedmineApplication {
 	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
 		return args -> {
 			
+			@SuppressWarnings("unused")
 			List<TimeEntry> w = TEService.getEntriesByDate("2018-07-23","2018-07-27");
 			
 			log.info("Started application with " + w.size() + " entries");
