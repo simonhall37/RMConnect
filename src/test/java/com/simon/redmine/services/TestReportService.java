@@ -160,8 +160,8 @@ public class TestReportService {
 		ReduceOps[] ro = new ReduceOps[] {ReduceOps.COUNT,ReduceOps.COUNT};
 		
 		String expectedLine1 = "key1,key2,count1,count2";
-		String expectedLine2 = "\"aaa\",\"bbb\",2,2";
-		String expectedLine3 = "\"yyy\",\"zzz\",1,1";
+		String expectedLine2 = "\"aaa\",\"bbb\",\"2\",\"2\"";
+		String expectedLine3 = "\"yyy\",\"zzz\",\"1\",\"1\"";
 		
 		assertThat(service.getResults().size()).isEqualTo(0);
 		
@@ -171,7 +171,7 @@ public class TestReportService {
 		service.add(keyArray2, valuesArray3);
 		
 		assertThat(service.getResults().size()).isEqualTo(2);
-		String[] result = service.reduce(ro).split("\n");
+		String[] result = service.reduce(ro,false).split("\n");
 		
 		assertThat(result.length).isEqualTo(3);
 		assertThat(result[0]).isEqualTo(expectedLine1);
@@ -192,9 +192,9 @@ public class TestReportService {
 		
 		ReduceOps[] ro = new ReduceOps[] {ReduceOps.SUM,ReduceOps.SUM};
 		
-		String expectedLine1 = "key1,key2,count1,count2";
-		String expectedLine2 = "\"aaa\",\"bbb\",3,4";
-		String expectedLine3 = "\"yyy\",\"zzz\",55,11";
+		String expectedLine1 = "\"key1\",\"key2\",\"count1\",\"count2\"";
+		String expectedLine2 = "\"aaa\",\"bbb\",\"3.0\",\"4.0\"";
+		String expectedLine3 = "\"yyy\",\"zzz\",\"55.0\",\"11.0\"";
 		
 		assertThat(service.getResults().size()).isEqualTo(0);
 		
@@ -204,7 +204,7 @@ public class TestReportService {
 		service.add(keyArray2, valuesArray3);
 		
 		assertThat(service.getResults().size()).isEqualTo(2);
-		String[] result = service.reduce(ro).split("\n");
+		String[] result = service.reduce(ro,true).split("\n");
 		
 		assertThat(result.length).isEqualTo(3);
 		assertThat(result[0]).isEqualTo(expectedLine1);
