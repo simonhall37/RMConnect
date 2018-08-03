@@ -22,7 +22,25 @@ public class ReportService {
 
 	public void add(Object[] keyArray, Object[] valuesArray) {
 
-		String[] values = Arrays.copyOf(valuesArray, valuesArray.length,String[].class);	
+		String[] values = new String[valuesArray.length];
+
+		int index = 0;
+		for (Object o : valuesArray) {
+			if (o instanceof Integer) {
+				values[index++] = ((Integer)o).toString();
+			}
+			else if (o instanceof String){
+				values[index++] = (String)o;
+			}
+			else if (o instanceof Double){
+				values[index++] = ((Double)o).toString();
+			}
+			else {
+				System.out.println("Can't cast "+ o.getClass().toString());
+				throw new ClassCastException();
+			}
+		}
+		
 		addToMap(arrayToQuotedString(keyArray), values);
 
 	}
@@ -83,7 +101,6 @@ public class ReportService {
 			
 		}
 		
-		System.out.println(sb.toString());
 		return sb.toString();
 	}
 
