@@ -3,6 +3,9 @@ package com.simon.redmine.services;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class ReflectionService {
 
 	public ReflectionService() {}
