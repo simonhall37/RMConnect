@@ -7,7 +7,7 @@ public class TimeEntry {
 	private Issue issue;
 	private User user;
 	private Activity activity;
-	private int hours;
+	private double hours;
 	private String comment;
 	private String spent_on;
 	private String created_on;
@@ -47,11 +47,11 @@ public class TimeEntry {
 		this.user = user;
 	}
 
-	public int getHours() {
+	public double getHours() {
 		return hours;
 	}
 
-	public void setHours(int hours) {
+	public void setHours(double hours) {
 		this.hours = hours;
 	}
 
