@@ -8,7 +8,7 @@ public class TimeEntry {
 	private User user;
 	private Activity activity;
 	private double hours;
-	private String comment;
+	private String comments;
 	private String spent_on;
 	private String created_on;
 	private String updated_on;
@@ -55,12 +55,12 @@ public class TimeEntry {
 		this.hours = hours;
 	}
 
-	public String getComment() {
-		return comment;
+	public String getComments() {
+		return comments;
 	}
 
-	public void setComment(String comment) {
-		this.comment = comment;
+	public void setComments(String comments) {
+		this.comments = comments;
 	}
 
 	public Activity getActivity() {
