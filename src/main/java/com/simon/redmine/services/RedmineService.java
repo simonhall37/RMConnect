@@ -1,5 +1,7 @@
 package com.simon.redmine.services;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.simon.redmine.domain.conditions.Condition;
 
 @Service
 public class RedmineService {
@@ -27,10 +35,9 @@ public class RedmineService {
 
 	@Autowired
 	private RestTemplateBuilder builder;
-
-	@SuppressWarnings("serial")
-	public <T extends Object> T getResponse(String format, String type, List<String> params, Class<T> objectType) throws NullPointerException {
-
+	
+	public void init() {
+		
 		if (this.restTemplate == null)
 			this.restTemplate = builder.build();
 
@@ -39,21 +46,82 @@ public class RedmineService {
 		if (this.API_KEY_VALUE == null) 
 			throw new NullPointerException("API_KEY_VALUE is not set. Expecting an env var called " + this.API_ENV_VAR_NAME);
 		
+	}
+	
+	public String buildUrl(String type, String format,List<String> params) {
+		
 		StringBuilder url = new StringBuilder(BASE_URL + "/" + type + "." + format + "?");
 		for (String entry : params) {
 			url.append(entry + "&");
 		}
 		
-		String urlString = url.toString();
+		return url.toString();
+	}
+	
+	public String getResponse(String format, String type, List<String> params) {
+		
+		init();
 
-		HttpEntity<T> response = restTemplate.exchange(urlString, HttpMethod.GET,
-				new HttpEntity<T>(new HttpHeaders() {
+		String urlString = buildUrl(type, format, params);
+
+		@SuppressWarnings("serial")
+		HttpEntity<String> response = restTemplate.exchange(urlString, HttpMethod.GET,
+				new HttpEntity<String>(new HttpHeaders() {
 					{
 						set(API_KEY_NAME, API_KEY_VALUE);
 					}
-				}), objectType);
-		T returnedObject = response.getBody();
-		return returnedObject;
+				}), String.class);
+		return response.getBody().replaceFirst(type, "payload");
+		
+	}
+	
+	public <T extends Object> List<T> getAllResponses(String format, String type, List<String> params, Class<T> objectType, int limit,Condition cond) {
+		
+		List<T> out = new ArrayList<>();
+		int threshold = limit;
+		int offset = 0;
+		ObjectMapper om = new ObjectMapper();
+		
+		while (out.size() <= threshold) {
+			
+			params.add("offset=" + 25*offset);
+			String response = getResponse(format, type, params);			
+			
+			params = params.subList(0, params.size()-1);
+			offset++;
+			
+			try {
+				JsonNode node = om.readTree(response);
+				if (out.size() == 0) 
+					threshold = Math.min(node.get("total_count").asInt(),limit);
+				System.out.println(node.get("total_count"));
+				
+				System.out.println("Extracting " + threshold + " entities of type " + objectType.getName() + ". Current size is " + out.size());
+
+				JsonNode entries = node.get("payload");
+				if (entries.isArray()) {
+					for (JsonNode child : entries) {
+						T entity = om.readValue(child.toString(), objectType);
+						out.add(entity);
+						if (out.size() >= threshold) 
+							return out;
+						if (cond!=null) {
+							if (!cond.compare(entity)) {
+								System.out.println("abort");
+								return out;
+							}
+						}
+					}
+				}
+			}  catch (JsonParseException | JsonMappingException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return out;
+		
 	}
 
 }
