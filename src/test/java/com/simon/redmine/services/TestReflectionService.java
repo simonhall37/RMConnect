@@ -15,7 +15,7 @@ public class TestReflectionService {
 	@Test
 	public void testGetLocalField_shouldReturnString() {
 		TimeEntry parent = new TimeEntry();
-		parent.setComment("This is a test");
+		parent.setComments("This is a test");
 		
 		ReflectionService service =  new ReflectionService();
 		Object out = null;
@@ -49,7 +49,7 @@ public class TestReflectionService {
 	@Test(expected = NoSuchMethodException.class)
 	public void testGetLocalField_shouldThrowException() throws NoSuchMethodException {
 		TimeEntry parent = new TimeEntry();
-		parent.setComment("This is a test");
+		parent.setComments("This is a test");
 		
 		ReflectionService service =  new ReflectionService();
 		try {
@@ -65,7 +65,7 @@ public class TestReflectionService {
 	@Test
 	public void testGetField_shouldReturnSimpleValue() {
 		TimeEntry parent = new TimeEntry();
-		parent.setComment("This is a test");
+		parent.setComments("This is a test");
 		
 		ReflectionService service =  new ReflectionService();
 		Object out = null;
