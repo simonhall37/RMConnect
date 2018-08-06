@@ -8,12 +8,15 @@ import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
 
+import com.simon.redmine.domain.conditions.Condition;
+
 @Service
 public class ReportService {
 
 	private String header;
 	private final Map<String, List<String[]>> results;
 	private String DELIM = ",";
+	private Condition[] conditions;
 
 	public ReportService() {
 		this.results = new TreeMap<>();
@@ -22,6 +25,20 @@ public class ReportService {
 	public void add(Object[] keyArray, Object[] valuesArray) {
 
 		String[] values = new String[valuesArray.length];
+		
+		if (this.conditions!=null) {
+			int index = 0;
+			if (conditions.length == keyArray.length) {
+				for (Condition c : this.conditions) {
+					if (c!=null && !c.compareDirect(keyArray[index])) {
+						return;
+					}
+					index++;
+				}
+			} else {
+				System.out.println("Length mismatch when applying conditions to keys. " + conditions.length + " and " + keyArray.length);
+			}
+		}
 
 		int index = 0;
 		for (Object o : valuesArray) {
@@ -114,6 +131,14 @@ public class ReportService {
 
 	public void setHeader(String header) {
 		this.header = header;
+	}
+
+	public Condition[] getConditions() {
+		return conditions;
+	}
+
+	public void setConditions(Condition[] conditions) {
+		this.conditions = conditions;
 	}
 
 }
