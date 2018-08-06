@@ -18,16 +18,13 @@ public class TestConditionNumeric {
 		User u = new User();
 		u.setId(100);
 		
-		ConditionNumeric e1 = new ConditionNumeric("=", 100);
-		e1.setVarPath("Id");
+		ConditionNumeric e1 = new ConditionNumeric("Id",true,"=", 100);
 		assertThat(e1.compare(u)).isTrue();
 		
-		ConditionNumeric e2 = new ConditionNumeric(">", 9);
-		e2.setVarPath("Id");
+		ConditionNumeric e2 = new ConditionNumeric("Id",true,">", 9);
 		assertThat(e2.compare(u)).isTrue();
 		
-		ConditionNumeric e3 = new ConditionNumeric("<", 200);
-		e3.setVarPath("Id");
+		ConditionNumeric e3 = new ConditionNumeric("Id",true,"<", 200);
 		assertThat(e3.compare(u)).isTrue();
 	}
 	
@@ -36,16 +33,13 @@ public class TestConditionNumeric {
 		User u = new User();
 		u.setId(100);
 		
-		ConditionNumeric e1 = new ConditionNumeric("=", 101);
-		e1.setVarPath("Id");
+		ConditionNumeric e1 = new ConditionNumeric("Id",true,"=", 101);
 		assertThat(e1.compare(u)).isFalse();
 		
-		ConditionNumeric e2 = new ConditionNumeric(">", 900);
-		e2.setVarPath("Id");
+		ConditionNumeric e2 = new ConditionNumeric("Id",true,">", 900);
 		assertThat(e2.compare(u)).isFalse();
 		
-		ConditionNumeric e3 = new ConditionNumeric("<", 100);
-		e3.setVarPath("Id");
+		ConditionNumeric e3 = new ConditionNumeric("Id",true,"<", 100);
 		assertThat(e3.compare(u)).isFalse();
 	}
 	
@@ -54,8 +48,7 @@ public class TestConditionNumeric {
 		User u = new User();
 		u.setId(100);
 		
-		ConditionNumeric e1 = new ConditionNumeric("simon", 101);
-		e1.setVarPath("Id");
+		ConditionNumeric e1 = new ConditionNumeric("Id",true,"simon", 101);
 		assertThat(e1.compare(u)).isFalse();
 
 	}

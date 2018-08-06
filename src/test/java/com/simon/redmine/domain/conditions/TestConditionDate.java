@@ -15,9 +15,8 @@ public class TestConditionDate {
 		TimeEntry entry = new TimeEntry();
 		entry.setCreated_on("2018-07-01");
 		
-		ConditionDate c = new ConditionDate(LocalDate.parse("2018-06-01"), LocalDate.parse("2018-08-01"), false);
-		c.setVarPath("Created_on");
-		
+		ConditionDate c = new ConditionDate("Created_on",true,LocalDate.parse("2018-06-01"), LocalDate.parse("2018-08-01"), false);
+
 		assertThat(c.compare(entry)).isTrue();
 		
 	}
@@ -27,9 +26,8 @@ public class TestConditionDate {
 		TimeEntry entry = new TimeEntry();
 		entry.setCreated_on("2018-07-01");
 		
-		ConditionDate c = new ConditionDate(LocalDate.parse("2018-07-01"), LocalDate.parse("2018-08-01"), true);
-		c.setVarPath("Created_on");
-		
+		ConditionDate c = new ConditionDate("Created_on",true,LocalDate.parse("2018-07-01"), LocalDate.parse("2018-08-01"), true);
+	
 		assertThat(c.compare(entry)).isTrue();
 		
 	}
@@ -39,9 +37,8 @@ public class TestConditionDate {
 		TimeEntry entry = new TimeEntry();
 		entry.setCreated_on("2018-07-01");
 		
-		ConditionDate c = new ConditionDate(LocalDate.parse("2018-07-01"), LocalDate.parse("2018-08-01"), false);
-		c.setVarPath("Created_on");
-		
+		ConditionDate c = new ConditionDate("Created_on",true,LocalDate.parse("2018-07-01"), LocalDate.parse("2018-08-01"), false);
+
 		assertThat(c.compare(entry)).isFalse();
 		
 	}
@@ -51,9 +48,8 @@ public class TestConditionDate {
 		TimeEntry entry = new TimeEntry();
 		entry.setCreated_on("2018-09-01");
 		
-		ConditionDate c = new ConditionDate(LocalDate.parse("2018-06-01"), LocalDate.parse("2018-08-01"), true);
-		c.setVarPath("Created_on");
-		
+		ConditionDate c = new ConditionDate("Created_on",true,LocalDate.parse("2018-06-01"), LocalDate.parse("2018-08-01"), true);
+
 		assertThat(c.compare(entry)).isFalse();
 		
 	}

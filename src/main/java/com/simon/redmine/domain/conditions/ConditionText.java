@@ -1,10 +1,17 @@
 package com.simon.redmine.domain.conditions;
 
+import java.util.List;
+
 public class ConditionText extends Condition {
 
-	private String testValue;
+	private final List<String> testValue;
 	
-	public ConditionText(String testValue) {
+	public ConditionText(String varPath, boolean stopImmediately,List<String> testValue) {
+		super(varPath,stopImmediately);
+		this.testValue = testValue;
+	}
+	
+	public ConditionText(List<String> testValue) {
 		super();
 		this.testValue = testValue;
 	}
@@ -12,16 +19,23 @@ public class ConditionText extends Condition {
 	@Override
 	public boolean compare(Object parent) {
 		String inputValue = (String) getInputVar(parent);
-		
-		return (inputValue.equalsIgnoreCase(testValue));
+		return compare(inputValue);	
+	}
+	
+	@Override
+	public boolean compareDirect(Object toCompare) {
+		return compare((String)toCompare);
+	}
+	
+	private boolean compare(String inputValue) {
+		return (testValue.contains(inputValue));
 	}
 
-	public String getTestValue() {
+
+	public List<String> getTestValue() {
 		return testValue;
 	}
 
-	public void setTestValue(String testValue) {
-		this.testValue = testValue;
-	}
 
+	
 }

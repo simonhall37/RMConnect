@@ -8,8 +8,8 @@ public class ConditionDate extends Condition {
 	private final LocalDate endDate;
 	private final boolean equalsAllowed;
 	
-	public ConditionDate(LocalDate startDate, LocalDate endDate, boolean equalsAllowed) {
-		super();
+	public ConditionDate(String varPath, boolean stopImmediately,LocalDate startDate, LocalDate endDate, boolean equalsAllowed) {
+		super(varPath,stopImmediately);
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.equalsAllowed = equalsAllowed;
@@ -19,6 +19,18 @@ public class ConditionDate extends Condition {
 	public boolean compare(Object parent) {
 		LocalDate inputValue=LocalDate.parse((String)getInputVar(parent));
 		
+		return compare(inputValue);
+	}
+	
+
+	@Override
+	public boolean compareDirect(Object toCompare) {
+		LocalDate inputValue = LocalDate.parse((String)toCompare);
+		
+		return compare(inputValue);
+	}
+	
+	private boolean compare(LocalDate inputValue) {
 		if (equalsAllowed) {
 			return (inputValue.isEqual(startDate) || inputValue.isEqual(endDate) || (inputValue.isAfter(startDate) && inputValue.isBefore(endDate)));
 		}
@@ -36,5 +48,6 @@ public class ConditionDate extends Condition {
 	public boolean isEqualsAllowed() {
 		return equalsAllowed;
 	}
+
 
 }
