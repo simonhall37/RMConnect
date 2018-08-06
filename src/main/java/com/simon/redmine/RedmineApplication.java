@@ -20,7 +20,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simon.redmine.domain.TimeEntry;
 import com.simon.redmine.domain.User;
+import com.simon.redmine.domain.conditions.Condition;
 import com.simon.redmine.domain.conditions.ConditionDate;
+import com.simon.redmine.domain.conditions.ConditionNumeric;
+import com.simon.redmine.domain.conditions.ConditionText;
 import com.simon.redmine.services.RedmineService;
 import com.simon.redmine.services.ReduceOps;
 import com.simon.redmine.services.ReflectionService;
@@ -57,59 +60,58 @@ public class RedmineApplication {
 	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
 		return args -> {
 			
-			String startDateString = "2018-07-27";
-			String endDateString = "2018-07-27";
-//			List<TimeEntry> w = TEService.getEntriesByDate(startDateString,endDateString);
+			String startDateString = "2018-07-02";
+			String endDateString = "2018-07-06";
 			
-			List<String> params = new ArrayList<>();
-			params.add("spent_on=>=" + startDateString);
-			params.add("spent_on=<=" + endDateString);
-//			params.add("limit=" + 1);
+			List<TimeEntry> results = TEService.getEntryByDate(startDateString, endDateString, 2000);
+			log.info("Returned " + results.size() + " time entries");
 			
-			ObjectMapper om = new ObjectMapper();
-			
-			ConditionDate cond = new ConditionDate(LocalDate.parse("2018-07-27"), LocalDate.parse("2018-07-27"), true);
-			cond.setVarPath("Spent_on");
-			List<TimeEntry> test = RMService.getAllResponses("json", "time_entries", params,TimeEntry.class,900,cond);
-			for (TimeEntry entry : test) {
-				System.out.println(entry.getId() + " --- " + entry.getUser().getName() + " - " + entry.getHours());
-			}
-			
-			List<User> users = RMService.getAllResponses("json", "users", new ArrayList<>(), User.class, 500,null);
-			for (User u : users) {
-				System.out.println(u.getId() + ": " + u.getFirstname() + " " + u.getLastname());
-			}
-			
-			
-//			ObjectMapper om = new ObjectMapper();
-//			JsonNode node = om.readTree(test);
-//			int count = node.get("total_count").asInt();
-//			System.out.println(count);
-//			JsonNode entries = node.get("payload");
-//			if (entries.isArray()) {
-//				for (JsonNode child : entries) {
-//					TimeEntry entry = om.readValue(child.toString(), TimeEntry.class);
-//					System.out.println(entry.getHours());
-//				}
+//			List<User> users = RMService.getAllResponses("json", "users", new ArrayList<>(), User.class, 500,null);
+//			for (User u : users) {
+//				System.out.println(u.getFirstname().trim() + "." + u.getLastname().trim());
 //			}
 			
-//			for (TimeEntry te : w) {
-//				Object[] keys = new Object[2];
-//				Object[] values = new Object[1];
-//				
-//				keys[0] = refService.getField(te, "User.Name");
-//				keys[1] = refService.getField(te, "Project.Name");
-//				values[0] = refService.getField(te, "Hours");
-//				
-//				repService.setHeader("Name,Project,Hours");
-//				repService.add(keys, values);
-//				
-//			}
+			List<String> softwareTeam = new ArrayList<>();
+			softwareTeam.add("Agata Nurkiewicz");
+			softwareTeam.add("Lukasz Malysa");
+			softwareTeam.add("Pawel Dudek");
+			softwareTeam.add("Bartek Szaflarski");
+			softwareTeam.add("Szymon Pluta");
+			softwareTeam.add("Bartosz Hornik");
+			softwareTeam.add("Lukasz Juchnik");
+			softwareTeam.add("Mariusz Markowski");
+			softwareTeam.add("Adrian Lorenc");
+			softwareTeam.add("Lukasz Obuchowicz");
+			softwareTeam.add("Artur Poninski");
+			softwareTeam.add("Denis Culavdzic");
+			softwareTeam.add("Karol Węcławski");
+			softwareTeam.add("Szymon Lamch");
+			softwareTeam.add("Artur Rietz");
+			softwareTeam.add("Michał Olszowski");
+//			softwareTeam.add("Michal Jeczalik");
+//			softwareTeam.add("Piotr Wolny");
+
+			ConditionText nameCheck = new ConditionText(softwareTeam);
+			Condition[] conds = new Condition[] {nameCheck,null};
+			repService.setConditions(conds);
 			
-//			String out = repService.reduce(new ReduceOps[] {ReduceOps.SUM}, true);
+			for (TimeEntry te : results) {
+				Object[] keys = new Object[2];
+				Object[] values = new Object[1];
+				
+				keys[0] = refService.getField(te, "User.Name");
+				keys[1] = refService.getField(te, "Project.Name");
+				values[0] = refService.getField(te, "Hours");
+				
+				repService.setHeader("Name,Project,Hours");
+				repService.add(keys, values);
+				
+			}
 			
-//			log.info("Started application with " + w.size() + " entries");
-//			log.info(out);
+			String out = repService.reduce(new ReduceOps[] {ReduceOps.SUM}, true);
+			
+			System.out.println(out);
+
 		};
 	}
 }
