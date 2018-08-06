@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -30,8 +32,10 @@ public class RedmineService {
 	private String API_ENV_VAR_NAME;
 	
 	private String API_KEY_VALUE;
-
+	private final int LIMIT = 100;
 	private RestTemplate restTemplate;
+	
+	private static final Logger log = LoggerFactory.getLogger(RedmineService.class);
 
 	@Autowired
 	private RestTemplateBuilder builder;
@@ -54,6 +58,7 @@ public class RedmineService {
 		for (String entry : params) {
 			url.append(entry + "&");
 		}
+		url.append("limit=" + this.LIMIT);
 		
 		return url.toString();
 	}
@@ -84,7 +89,7 @@ public class RedmineService {
 		
 		while (out.size() <= threshold) {
 			
-			params.add("offset=" + 25*offset);
+			params.add("offset=" + this.LIMIT*offset);
 			String response = getResponse(format, type, params);			
 			
 			params = params.subList(0, params.size()-1);
@@ -94,9 +99,8 @@ public class RedmineService {
 				JsonNode node = om.readTree(response);
 				if (out.size() == 0) 
 					threshold = Math.min(node.get("total_count").asInt(),limit);
-				System.out.println(node.get("total_count"));
 				
-				System.out.println("Extracting " + threshold + " entities of type " + objectType.getName() + ". Current size is " + out.size());
+				log.info("Extracting up to " + threshold + " entities of type " + objectType.getName() + ". Current size is " + out.size());
 
 				JsonNode entries = node.get("payload");
 				if (entries.isArray()) {
@@ -107,7 +111,6 @@ public class RedmineService {
 							return out;
 						if (cond!=null) {
 							if (!cond.compare(entity)) {
-								System.out.println("abort");
 								return out;
 							}
 						}
