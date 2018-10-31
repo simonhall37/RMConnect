@@ -20,7 +20,7 @@ public class TestReflectionService {
 		ReflectionService service =  new ReflectionService();
 		Object out = null;
 		try {
-			out = service.getLocalField(parent, "Comment");
+			out = service.getLocalField(parent, "Comments");
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			e.printStackTrace();
@@ -43,7 +43,7 @@ public class TestReflectionService {
 			e.printStackTrace();
 		}
 
-		assertThat(8).isEqualTo(out);
+		assertThat(8d).isEqualTo(out);
 	}
 	
 	@Test(expected = NoSuchMethodException.class)
@@ -70,7 +70,7 @@ public class TestReflectionService {
 		ReflectionService service =  new ReflectionService();
 		Object out = null;
 		try {
-			out =  service.getField(parent, "Comment");
+			out =  service.getField(parent, "Comments");
 		} catch (IllegalArgumentException  e) {
 			fail(e.getMessage());
 		}

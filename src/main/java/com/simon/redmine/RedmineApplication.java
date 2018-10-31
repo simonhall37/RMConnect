@@ -1,10 +1,15 @@
 package com.simon.redmine;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,26 +61,23 @@ public class RedmineApplication {
 		return builder.build();
 	}
 	
+	
+	
 	@Bean
 	public CommandLineRunner run(RestTemplate restTemplate) throws Exception {
 		return args -> {
 			
-			String startDateString = "2018-07-02";
-			String endDateString = "2018-07-06";
+			String startDateString = "2018-10-15";
+			String endDateString = "2018-10-19";
 			
-			List<TimeEntry> results = TEService.getEntryByDate(startDateString, endDateString, 2000);
+			List<TimeEntry> results = TEService.getEntryByDate(startDateString, endDateString, 50_000);
 			log.info("Returned " + results.size() + " time entries");
-			
-//			List<User> users = RMService.getAllResponses("json", "users", new ArrayList<>(), User.class, 500,null);
-//			for (User u : users) {
-//				System.out.println(u.getFirstname().trim() + "." + u.getLastname().trim());
-//			}
 			
 			List<String> softwareTeam = new ArrayList<>();
 			softwareTeam.add("Agata Nurkiewicz");
 			softwareTeam.add("Lukasz Malysa");
 			softwareTeam.add("Pawel Dudek");
-			softwareTeam.add("Bartek Szaflarski");
+//			softwareTeam.add("Bartek Szaflarski");
 			softwareTeam.add("Szymon Pluta");
 			softwareTeam.add("Bartosz Hornik");
 			softwareTeam.add("Lukasz Juchnik");
@@ -84,26 +86,41 @@ public class RedmineApplication {
 			softwareTeam.add("Lukasz Obuchowicz");
 			softwareTeam.add("Artur Poninski");
 			softwareTeam.add("Denis Culavdzic");
-			softwareTeam.add("Karol Węcławski");
 			softwareTeam.add("Szymon Lamch");
 			softwareTeam.add("Artur Rietz");
 			softwareTeam.add("Michał Olszowski");
-//			softwareTeam.add("Michal Jeczalik");
-//			softwareTeam.add("Piotr Wolny");
+			softwareTeam.add("Krzysztof Kozubek");
+			softwareTeam.add("Adam Pietras");
+
+			List<String> consultTeam = new ArrayList<>();
+			consultTeam.add("Lesli Smith");
+			consultTeam.add("Geoff Brewster");
+			consultTeam.add("Rob Faulkner");
+			consultTeam.add("Ciaran Gilligan");
+			consultTeam.add("Benn Cass");
 
 			ConditionText nameCheck = new ConditionText(softwareTeam);
-			Condition[] conds = new Condition[] {nameCheck,null};
+			Condition[] conds = new Condition[] {null,nameCheck,null};
 			repService.setConditions(conds);
 			
 			for (TimeEntry te : results) {
-				Object[] keys = new Object[2];
+				
+				Object[] keys = new Object[3];
 				Object[] values = new Object[1];
 				
-				keys[0] = refService.getField(te, "User.Name");
-				keys[1] = refService.getField(te, "Project.Name");
+				LocalDate ld = LocalDate.parse((String)refService.getField(te, "Spent_on"));
+				WeekFields weekFields = WeekFields.of(Locale.getDefault()); 
+				int weekNumber = ld.get(weekFields.weekOfWeekBasedYear());
+				LocalDate weekStart = LocalDate.now()
+			            .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, weekNumber)
+			            .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+				
+				keys[0] = Integer.toString(weekNumber);
+				keys[1] = refService.getField(te, "User.Name");
+				keys[2] = refService.getField(te, "Project.Name");
 				values[0] = refService.getField(te, "Hours");
 				
-				repService.setHeader("Name,Project,Hours");
+				repService.setHeader("Week Number,Name,Project,Hours");
 				repService.add(keys, values);
 				
 			}
